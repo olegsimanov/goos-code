@@ -1,0 +1,6 @@
+.DS_Store
+.idea
+auction-sniper.log
+build/
+lib/.DS_Store
+docker-compose.yml
