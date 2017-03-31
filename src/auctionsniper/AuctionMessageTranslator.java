@@ -9,9 +9,11 @@ import java.util.Map;
 
 public class AuctionMessageTranslator implements MessageListener {
 
+    private final String sniperId;                  // helps translator to know to whom belongs the price
     private AuctionEventListener listener;
 
-    public AuctionMessageTranslator(AuctionEventListener listener) {
+    public AuctionMessageTranslator(String sniperId, AuctionEventListener listener) {
+        this.sniperId = sniperId;
         this.listener = listener;
     }
 
@@ -26,7 +28,7 @@ public class AuctionMessageTranslator implements MessageListener {
         if ("CLOSE".equals(type)) {
             listener.auctionClosed();
         } else if ("PRICE".equals(type)) {
-            listener.currentPrice(event.currentPrice(), event.increment());
+            listener.currentPrice(event.currentPrice(), event.increment(), event.isFrom(sniperId));
         }
 
     }
@@ -56,6 +58,14 @@ public class AuctionMessageTranslator implements MessageListener {
         private void addField(String field) {
             String[] pair = field.split(":");
             fields.put(pair[0].trim(), pair[1].trim());
+        }
+
+        private AuctionEventListener.PriceSource isFrom(String sniperId) {
+            return sniperId.equals(bidder()) ? AuctionEventListener.PriceSource.FromSniper : AuctionEventListener.PriceSource.FromOtherBidder;
+        }
+
+        private String bidder() {
+            return get("Bidder");
         }
 
         static AuctionEvent from(String messageBody) {

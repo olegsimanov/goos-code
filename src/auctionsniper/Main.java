@@ -42,7 +42,15 @@ public class Main {
         this.notToBeGCd = chat;
 
         Auction auction = new XMPPAuction(chat);
-        chat.addMessageListener(new AuctionMessageTranslator(new AuctionSniper(auction, new SniperStateDisplayer())));
+        chat.addMessageListener(
+                new AuctionMessageTranslator(
+                    connection.getUser(),
+                    new AuctionSniper(
+                            auction,
+                            new SniperStateDisplayer()
+                    )
+                )
+        );
 
         auction.join();
     }
@@ -121,6 +129,26 @@ public class Main {
                 @Override
                 public void run() {
                     ui.showStatus(MainWindow.STATUS_BIDDING);
+                }
+            });
+        }
+
+        @Override
+        public void sniperWinning() {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    ui.showStatus(MainWindow.STATUS_WINNING);
+                }
+            });
+        }
+
+        @Override
+        public void sniperWon() {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    ui.showStatus(MainWindow.STATUS_WON);
                 }
             });
         }
