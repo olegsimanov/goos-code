@@ -26,6 +26,7 @@ public class Main {
 
     private MainWindow ui;
     private Chat notToBeGCd;
+    private final MainWindow.SnipersTableModel snipers = new MainWindow.SnipersTableModel();
 
     public Main() throws Exception {
         startUserInterface();
@@ -48,7 +49,7 @@ public class Main {
                     new AuctionSniper(
                             itemId,
                             auction,
-                            new SniperStateDisplayer()
+                            new SwingThreadSniperListener(snipers)
                     )
                 )
         );
@@ -59,7 +60,7 @@ public class Main {
     private void startUserInterface() throws Exception {
         SwingUtilities.invokeAndWait(new Runnable() {
             public void run() {
-                ui = new MainWindow();
+                ui = new MainWindow(snipers);
             }
         });
     }
@@ -112,44 +113,20 @@ public class Main {
         }
     }
 
-    public class SniperStateDisplayer implements SniperListener {
+    public class SwingThreadSniperListener implements SniperListener {
 
-        @Override
-        public void sniperLost() {
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    ui.showStatus(MainWindow.STATUS_LOST);
-                }
-            });
+        private MainWindow.SnipersTableModel snipers;
+
+        public SwingThreadSniperListener(MainWindow.SnipersTableModel snipers) {
+            this.snipers = snipers;
         }
 
         @Override
-        public void sniperBidding(final SniperState state) {
+        public void sniperStateChanged(final SniperSnapshot sniperSnapshot) {
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    ui.sniperStatusChanged(state, MainWindow.STATUS_BIDDING);
-                }
-            });
-        }
-
-        @Override
-        public void sniperWinning() {
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    ui.showStatus(MainWindow.STATUS_WINNING);
-                }
-            });
-        }
-
-        @Override
-        public void sniperWon() {
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    ui.showStatus(MainWindow.STATUS_WON);
+                    ui.sniperStateChanged(sniperSnapshot);
                 }
             });
         }
