@@ -1,9 +1,6 @@
 package test.auctionsniper;
 
-import auctionsniper.Auction;
-import auctionsniper.AuctionEventListener;
-import auctionsniper.AuctionSniper;
-import auctionsniper.SniperListener;
+import auctionsniper.*;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.States;
@@ -14,12 +11,14 @@ import org.junit.runner.RunWith;
 @RunWith(JMock.class)
 public class AuctionSniperTest {
 
+    private static final String ITEM_ID = "itemId";
+
     private final Mockery context = new Mockery();
     private final SniperListener sniperListener = context.mock(SniperListener.class);
     private final States sniperState = context.states("sniper");
     private final Auction auction = context.mock(Auction.class);
 
-    private final AuctionSniper sniper = new AuctionSniper(auction, sniperListener);
+    private final AuctionSniper sniper = new AuctionSniper(ITEM_ID, auction, sniperListener);
 
     @Test public void
     reportsLostWhenAuctionClosesImmediately() {
@@ -34,9 +33,10 @@ public class AuctionSniperTest {
     bidsHigherAndReportsBiddingWhenNewPriceArrives() {
         final int price = 100;
         final int increment = 25;
+        final int bid = price + increment;
         context.checking(new Expectations(){{
             one(auction).bid(price + increment);
-            atLeast(1).of(sniperListener).sniperBidding();
+            atLeast(1).of(sniperListener).sniperBidding(new SniperState(ITEM_ID, price, bid));
         }});
         sniper.currentPrice(price, increment, AuctionEventListener.PriceSource.FromOtherBidder);
     }
@@ -45,7 +45,7 @@ public class AuctionSniperTest {
     reportsLostIfAuctionClosesWhenBidding() {
         context.checking(new Expectations() {{
             ignoring(auction);
-            allowing(sniperListener).sniperBidding(); then(sniperState.is("bidding"));
+            allowing(sniperListener).sniperBidding(with(any(SniperState.class))); then(sniperState.is("bidding"));
             atLeast(1).of(sniperListener).sniperLost(); when(sniperState.is("bidding"));
         }});
         sniper.currentPrice(123, 45, AuctionEventListener.PriceSource.FromOtherBidder);

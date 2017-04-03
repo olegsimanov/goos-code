@@ -46,6 +46,7 @@ public class Main {
                 new AuctionMessageTranslator(
                     connection.getUser(),
                     new AuctionSniper(
+                            itemId,
                             auction,
                             new SniperStateDisplayer()
                     )
@@ -124,11 +125,11 @@ public class Main {
         }
 
         @Override
-        public void sniperBidding() {
+        public void sniperBidding(final SniperState state) {
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    ui.showStatus(MainWindow.STATUS_BIDDING);
+                    ui.sniperStatusChanged(state, MainWindow.STATUS_BIDDING);
                 }
             });
         }
