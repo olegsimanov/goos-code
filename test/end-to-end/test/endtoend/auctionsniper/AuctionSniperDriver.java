@@ -41,7 +41,7 @@ public class AuctionSniperDriver extends JFrameDriver {
                 withLabelText("Item"),
                 withLabelText("Last Price"),
                 withLabelText("Last Bid"),
-                withLabelText("Status")
+                withLabelText("State")
         ));
     }
 }

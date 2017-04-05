@@ -22,10 +22,10 @@ public enum Column {
             return snapshot.lastBid;
         }
     },
-    SNIPER_STATUS("Status") {
+    SNIPER_STATE("State") {
         @Override
         public Object valueIn(SniperSnapshot snapshot) {
-            return MainWindow.SnipersTableModel.textFor(snapshot.state);
+            return SnipersTableModel.textFor(snapshot.state);
         }
     };
 

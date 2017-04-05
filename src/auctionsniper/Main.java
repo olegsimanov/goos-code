@@ -1,6 +1,7 @@
 package auctionsniper;
 
 import auctionsniper.ui.MainWindow;
+import auctionsniper.ui.SnipersTableModel;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
@@ -8,6 +9,8 @@ import org.jivesoftware.smack.XMPPException;
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
 
@@ -25,8 +28,8 @@ public class Main {
 
 
     private MainWindow ui;
-    private Chat notToBeGCd;
-    private final MainWindow.SnipersTableModel snipers = new MainWindow.SnipersTableModel();
+    private List<Chat> notToBeGCd = new ArrayList<>();
+    private final SnipersTableModel snipers = new SnipersTableModel();
 
     public Main() throws Exception {
         startUserInterface();
@@ -34,13 +37,17 @@ public class Main {
 
     public static void main(String... args) throws Exception {
         Main main = new Main();
-        main.joinAuction(connectTo(args[ARG_HOSTNAME], args[ARG_USERNAME], args[ARG_PASSWORD]), args[ARG_ITEM_ID]);
+        XMPPConnection connection = connectTo(args[ARG_HOSTNAME], args[ARG_USERNAME], args[ARG_PASSWORD]);
+        main.disconnectWhenUICloses(connection);
+        for (int i = 3; i < args.length; i++) {
+            main.joinAuction(connection, args[i]);
+        }
     }
 
     private void joinAuction(XMPPConnection connection, String itemId) throws XMPPException {
-        disconnectWhenUICloses(connection);
+        safelyAddItemToModel(itemId);
         final Chat chat = connection.getChatManager().createChat(auctionId(itemId, connection), null);
-        this.notToBeGCd = chat;
+        this.notToBeGCd.add(chat);
 
         Auction auction = new XMPPAuction(chat);
         chat.addMessageListener(
@@ -55,6 +62,15 @@ public class Main {
         );
 
         auction.join();
+    }
+
+    private void safelyAddItemToModel(final String itemId) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                snipers.addSniper(SniperSnapshot.joining(itemId));
+            }
+        });
     }
 
     private void startUserInterface() throws Exception {
@@ -115,9 +131,9 @@ public class Main {
 
     public class SwingThreadSniperListener implements SniperListener {
 
-        private MainWindow.SnipersTableModel snipers;
+        private SnipersTableModel snipers;
 
-        public SwingThreadSniperListener(MainWindow.SnipersTableModel snipers) {
+        public SwingThreadSniperListener(SnipersTableModel snipers) {
             this.snipers = snipers;
         }
 

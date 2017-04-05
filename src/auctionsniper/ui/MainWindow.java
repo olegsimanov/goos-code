@@ -1,10 +1,8 @@
 package auctionsniper.ui;
 
 import auctionsniper.SniperSnapshot;
-import auctionsniper.SniperState;
 
 import javax.swing.*;
-import javax.swing.table.AbstractTableModel;
 
 import java.awt.*;
 
@@ -48,40 +46,4 @@ public class MainWindow extends JFrame {
         snipers.sniperStateChanged(snapshot);
     }
 
-    public static class SnipersTableModel extends AbstractTableModel {
-
-        private final static SniperSnapshot STARTING_UP = new SniperSnapshot("", 0, 0, SniperState.JOINING);
-        private final static String[] STATUS_TEXT = new String[] {
-            "Joining", "Bidding", "Winning", "Lost", "Won"
-        };
-
-        private SniperSnapshot sniperSnapshot = STARTING_UP;
-
-        public int getColumnCount() {
-            return Column.values().length;
-        }
-
-        public int getRowCount() {
-            return 1;
-        }
-
-        public Object getValueAt(int rowIndex, int columnIndex) {
-            return Column.at(columnIndex).valueIn(sniperSnapshot);
-        }
-
-        public void sniperStateChanged(SniperSnapshot newSnapshot) {
-            this.sniperSnapshot = newSnapshot;
-            fireTableRowsUpdated(0, 0);
-        }
-
-        public static String textFor(SniperState state) {
-            return STATUS_TEXT[state.ordinal()];
-        }
-
-        @Override
-        public String getColumnName(int column) {
-            return Column.at(column).name;
-        }
-    }
-
-} 
+}

@@ -12,7 +12,7 @@ public class ColumnTest {
         assertEquals("ITEM_IDENTIFIER", Column.at(0).name());
         assertEquals("LAST_PRICE", Column.at(1).name());
         assertEquals("LAST_BID", Column.at(2).name());
-        assertEquals("SNIPER_STATUS", Column.at(3).name());
+        assertEquals("SNIPER_STATE", Column.at(3).name());
     }
 
     @Test
