@@ -2,6 +2,7 @@ package auctionsniper;
 
 import auctionsniper.ui.MainWindow;
 import auctionsniper.ui.SnipersTableModel;
+import auctionsniper.ui.UserRequestListener;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
@@ -39,39 +40,66 @@ public class Main {
         Main main = new Main();
         XMPPConnection connection = connectTo(args[ARG_HOSTNAME], args[ARG_USERNAME], args[ARG_PASSWORD]);
         main.disconnectWhenUICloses(connection);
-        for (int i = 3; i < args.length; i++) {
-            main.joinAuction(connection, args[i]);
-        }
+        main.addUserRequestListenerFor(connection);
+//        for (int i = 3; i < args.length; i++) {
+//            main.joinAuction(connection, args[i]);
+//        }
     }
 
-    private void joinAuction(XMPPConnection connection, String itemId) throws XMPPException {
-        safelyAddItemToModel(itemId);
-        final Chat chat = connection.getChatManager().createChat(auctionId(itemId, connection), null);
-        this.notToBeGCd.add(chat);
-
-        Auction auction = new XMPPAuction(chat);
-        chat.addMessageListener(
-                new AuctionMessageTranslator(
-                    connection.getUser(),
-                    new AuctionSniper(
-                            itemId,
-                            auction,
-                            new SwingThreadSniperListener(snipers)
-                    )
-                )
-        );
-
-        auction.join();
-    }
-
-    private void safelyAddItemToModel(final String itemId) {
-        SwingUtilities.invokeLater(new Runnable() {
+    private void addUserRequestListenerFor(final XMPPConnection connection) {
+        ui.addUserRequestListener(new UserRequestListener() {
             @Override
-            public void run() {
+            public void joinAuction(String itemId) {
                 snipers.addSniper(SniperSnapshot.joining(itemId));
+                final Chat chat = connection.getChatManager().createChat(auctionId(itemId, connection), null);
+                notToBeGCd.add(chat);
+
+                Auction auction = new XMPPAuction(chat);
+                chat.addMessageListener(
+                        new AuctionMessageTranslator(
+                                connection.getUser(),
+                                new AuctionSniper(
+                                        itemId,
+                                        auction,
+                                        new SwingThreadSniperListener(snipers)
+                                )
+                        )
+                );
+
+                auction.join();
+
             }
         });
     }
+
+//    private void joinAuction(XMPPConnection connection, String itemId) throws XMPPException {
+//        safelyAddItemToModel(itemId);
+//        final Chat chat = connection.getChatManager().createChat(auctionId(itemId, connection), null);
+//        this.notToBeGCd.add(chat);
+//
+//        Auction auction = new XMPPAuction(chat);
+//        chat.addMessageListener(
+//                new AuctionMessageTranslator(
+//                    connection.getUser(),
+//                    new AuctionSniper(
+//                            itemId,
+//                            auction,
+//                            new SwingThreadSniperListener(snipers)
+//                    )
+//                )
+//        );
+//
+//        auction.join();
+//    }
+
+//    private void safelyAddItemToModel(final String itemId) {
+//        SwingUtilities.invokeLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                snipers.addSniper(SniperSnapshot.joining(itemId));
+//            }
+//        });
+//    }
 
     private void startUserInterface() throws Exception {
         SwingUtilities.invokeAndWait(new Runnable() {
