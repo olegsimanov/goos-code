@@ -2,18 +2,10 @@ package auctionsniper;
 
 import auctionsniper.ui.MainWindow;
 import auctionsniper.ui.SnipersTableModel;
-import auctionsniper.ui.UserRequestListener;
-import auctionsniper.xmpp.XMPPAuction;
-import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.XMPPException;
 
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.List;
-
-import static auctionsniper.XMPPAuctionHouse.AUCTION_RESOURCE;
 
 public class Main {
 
@@ -27,7 +19,6 @@ public class Main {
 
 
     private MainWindow ui;
-    private List<Auction> notToBeGCd = new ArrayList<>();
     private final SnipersTableModel snipers = new SnipersTableModel();
 
     public Main() throws Exception {
@@ -42,17 +33,7 @@ public class Main {
     }
 
     private void addUserRequestListenerFor(final AuctionHouse auctionHouse) {
-        ui.addUserRequestListener(new UserRequestListener() {
-            @Override
-            public void joinAuction(String itemId) {
-                snipers.addSniper(SniperSnapshot.joining(itemId));
-                Auction auction = auctionHouse.auctionFor(itemId);
-                notToBeGCd.add(auction);
-                auction.addAuctionEventListener(new AuctionSniper(itemId, auction, new SwingThreadSniperListener()));
-                auction.join();
-
-            }
-        });
+        ui.addUserRequestListener(new SniperLauncher(auctionHouse, snipers));
     }
 
     private void startUserInterface() throws Exception {
@@ -70,19 +51,6 @@ public class Main {
                 auctionHouse.disconnect();
             }
         });
-    }
-
-    public class SwingThreadSniperListener implements SniperListener {
-
-        @Override
-        public void sniperStateChanged(final SniperSnapshot sniperSnapshot) {
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    ui.sniperStateChanged(sniperSnapshot);
-                }
-            });
-        }
     }
 
 }

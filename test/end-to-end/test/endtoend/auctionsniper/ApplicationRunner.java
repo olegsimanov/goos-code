@@ -10,7 +10,7 @@ public class ApplicationRunner {
     public static final String SNIPER_ID        = "sniper";
     public static final String SNIPER_PASSWORD  = "sniper";
 
-    public static final String SNIPER_XMPP_ID = SNIPER_ID + "@" + XMPP_HOSTNAME + "/Auction";
+    public static final String SNIPER_XMPP_ID = SNIPER_ID + "@" + "192.168.254.116" + "/Auction";
 
     private AuctionSniperDriver driver;
 
