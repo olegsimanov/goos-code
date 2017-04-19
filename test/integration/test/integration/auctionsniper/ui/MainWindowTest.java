@@ -1,5 +1,6 @@
 package test.integration.auctionsniper.ui;
 
+import auctionsniper.SniperPortfolio;
 import auctionsniper.ui.MainWindow;
 import auctionsniper.ui.SnipersTableModel;
 import auctionsniper.ui.UserRequestListener;
@@ -11,8 +12,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 
 public class MainWindowTest {
 
-    private final SnipersTableModel tableModel = new SnipersTableModel();
-    private final MainWindow mainWindow = new MainWindow(tableModel);
+    private final MainWindow mainWindow = new MainWindow(new SniperPortfolio());
     private final AuctionSniperDriver driver = new AuctionSniperDriver(100);
 
     @Test

@@ -6,13 +6,13 @@ import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SnipersTableModel extends AbstractTableModel implements SniperListener, SniperCollector {
+public class SnipersTableModel extends AbstractTableModel
+        implements SniperListener, SniperPortfolio.PortfolioListener {
 
     private final static String[] STATUS_TEXT = new String[] {
         "Joining", "Bidding", "Winning", "Lost", "Won"
     };
 
-    private List<AuctionSniper> notToBeGCd = new ArrayList<>();
     private List<SniperSnapshot> snapshots = new ArrayList<>();
 
     public int getColumnCount() {
@@ -51,16 +51,17 @@ public class SnipersTableModel extends AbstractTableModel implements SniperListe
         return Column.at(column).name;
     }
 
-    @Override
-    public void addSniper(AuctionSniper sniper) {
-        notToBeGCd.add(sniper);
-        addSniperSnapshot(sniper.getSnapshot());
-        sniper.addSniperListener(new SwingThreadSniperListener(this));
-    }
 
     public void addSniperSnapshot(SniperSnapshot snapshot) {
         snapshots.add(snapshot);
         int row = snapshots.size() - 1;
         fireTableRowsInserted(row, row);
     }
+
+    @Override
+    public void sniperAdded(AuctionSniper sniper) {
+        addSniperSnapshot(sniper.getSnapshot());
+        sniper.addSniperListener(new SwingThreadSniperListener(this));
+    }
+
 }
