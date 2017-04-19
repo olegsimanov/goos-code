@@ -10,7 +10,7 @@ public class SnipersTableModel extends AbstractTableModel
         implements SniperListener, SniperPortfolio.PortfolioListener {
 
     private final static String[] STATUS_TEXT = new String[] {
-        "Joining", "Bidding", "Winning", "Lost", "Won"
+        "Joining", "Bidding", "Winning", "Losing", "Lost", "Won"
     };
 
     private List<SniperSnapshot> snapshots = new ArrayList<>();

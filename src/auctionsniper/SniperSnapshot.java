@@ -1,5 +1,7 @@
 package auctionsniper;
 
+import static auctionsniper.SniperState.LOSING;
+
 public class SniperSnapshot {
 
     public final String itemId;
@@ -33,6 +35,11 @@ public class SniperSnapshot {
     public SniperSnapshot closed() {
         return new SniperSnapshot(itemId, lastPrice, lastBid, state.whenAuctionClosed());
     }
+
+    public SniperSnapshot losing(int newLastPrice) {
+        return new SniperSnapshot(itemId, newLastPrice, lastBid, LOSING);
+    }
+
 
     @Override
     public boolean equals(Object o) {
