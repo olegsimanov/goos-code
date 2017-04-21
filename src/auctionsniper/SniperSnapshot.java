@@ -1,5 +1,6 @@
 package auctionsniper;
 
+import static auctionsniper.SniperState.FAILED;
 import static auctionsniper.SniperState.LOSING;
 
 public class SniperSnapshot {
@@ -40,6 +41,9 @@ public class SniperSnapshot {
         return new SniperSnapshot(itemId, newLastPrice, lastBid, LOSING);
     }
 
+    public SniperSnapshot failed() {
+        return new SniperSnapshot(itemId, 0, 0, FAILED);
+    }
 
     @Override
     public boolean equals(Object o) {
